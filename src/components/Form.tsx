@@ -7,6 +7,7 @@ const useValidation = (value: any, validations: any) => {
     const [minLengthErr, setMinLengthErr] = useState(false)
     const [maxLengthErr, setMaxLengthErr] = useState(false)
     const [emailErr, setEmailErr] = useState(false)
+    const [kirErr, setKirErr] = useState(false)
     const [inputValid, setInputValid] = useState(false)
 
     useEffect(() => {
@@ -25,12 +26,16 @@ const useValidation = (value: any, validations: any) => {
                     const re = /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
                     re.test(String(value).toLowerCase()) ? setEmailErr(false) : setEmailErr(true)
                     break
+                case 'isKir':
+                    const kir = /[а-я]/i;
+                    kir.test(String(value).toLowerCase()) ? setKirErr(true) : setKirErr(false)
+                    break
             }
         }
     }, [value])
 
     useEffect(() => {
-        if (isEmpty || maxLengthErr || minLengthErr || emailErr) {
+        if (isEmpty || maxLengthErr || minLengthErr || emailErr || kirErr) {
             setInputValid(false)
         } else {
             setInputValid(true)
@@ -42,6 +47,7 @@ const useValidation = (value: any, validations: any) => {
         minLengthErr,
         maxLengthErr,
         emailErr,
+        kirErr,
         inputValid
     }
 }
@@ -53,11 +59,26 @@ const useInput = (initialValue: any, validations: any) => {
 
 
     const onChange = (e: any) => {
-        setValue(e.target.value)
+        if (validations.isUpperCase) {
+            setValue(e.target.value.toUpperCase())
+        } else {
+            setValue(e.target.value)
+        }
     }
 
     const onBlur = (e: any) => {
         setDirty(true)
+    }
+
+    const onKeyPress = (e: any) => {
+        console.log(e.charCode)
+        if (value.includes(' ') && e.charCode === 32) {
+            e.preventDefault()
+        }
+
+        /*if (e.charCode >= 48 && e.charCode <=55) {
+            e.preventDefault()
+        }*/
     }
 
     return {
@@ -65,14 +86,25 @@ const useInput = (initialValue: any, validations: any) => {
         onChange,
         onBlur,
         isDirty,
+        onKeyPress,
         ...valid
     }
 }
 
 export const Form = () => {
 
-    const name = useInput('', {isEmpty: true, minLength: 3, maxLength: 8})
-    const email = useInput('', {isEmpty: true, minLength: 7, isEmail: true})
+    const name = useInput('', {
+        isUpperCase: true,
+        isEmpty: true,
+        minLength: 3,
+        maxLength: 30,
+        isKir: true,
+    })
+    const email = useInput('', {
+        isUpperCase: false,
+        isEmpty: true,
+        isEmail: true,
+    })
 
     return (
         <form action="" className={style.form_container}>
@@ -81,10 +113,12 @@ export const Form = () => {
                    value={name.value}
                    onChange={e => name.onChange(e)}
                    onBlur={e => name.onBlur(e)}
-                   placeholder='Имя Фамилия'/>
+                   onKeyPress={e => name.onKeyPress(e)}
+                   placeholder='Enter your name and surname here'/>
             {(name.isDirty && name.isEmpty) && <div style={{color: 'red'}}>Поле не может быть пустым</div>}
             {(name.isDirty && name.minLengthErr) && <div style={{color: 'red'}}>Некорректная длина 3</div>}
             {(name.isDirty && name.maxLengthErr) && <div style={{color: 'red'}}>Некорректная длина 8</div>}
+            {(name.isDirty && name.kirErr) && <div style={{color: 'red'}}>Только латиница</div>}
             <input type="email"
                    name='email'
                    value={email.value}
