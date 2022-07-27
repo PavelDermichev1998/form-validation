@@ -1,0 +1,40 @@
+.form_container {
+  background-color: #48bbd3;
+  padding: 20px;
+  width: 100%;
+
+  input {
+    margin: 5px;
+    width: 50%;
+    height: 40px;
+    border-radius: 10px;
+    border: 2px solid;
+    padding-left: 10px;
+  }
+
+  textarea {
+    margin: 5px;
+    width: 50%;
+    height: 150px;
+    border-radius: 10px;
+    border: 2px solid;
+    padding-left: 10px;
+    resize: vertical;
+  }
+
+  button {
+    width: 150px;
+    height: 50px;
+    cursor: pointer;
+    background-color: #3fa4e3;
+    border-radius: 5px;
+    color: white;
+    -webkit-transition: box-shadow 200ms ease-in-out, color 200ms ease-in-out;
+    transition: box-shadow 200ms ease-in-out, color 200ms ease-in-out;
+
+    &:hover {
+      box-shadow: 0 0 40px 40px #ffffff inset;
+      color: black;
+    }
+  }
+}
