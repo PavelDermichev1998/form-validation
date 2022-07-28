@@ -2,9 +2,9 @@ import {useEffect, useState} from "react";
 
 export const useValidation = (value: string, validations: any) => {
 
-    const [isEmpty, setEmpty] = useState<boolean>(true)
-    const [isEmptyPhoneErr, setIsEmptyPhoneErr] = useState<boolean>(true)
-    const [isEmptyForDateErr, setIsEmptyForDateErr] = useState<boolean>(true)
+    const [isEmpty, setEmpty] = useState<boolean>(false)
+    const [isEmptyPhoneErr, setIsEmptyPhoneErr] = useState<boolean>(false)
+    const [isEmptyForDateErr, setIsEmptyForDateErr] = useState<boolean>(false)
 
     const [minLengthErr, setMinLengthErr] = useState<boolean>(false)
     const [maxLengthErr, setMaxLengthErr] = useState<boolean>(false)
@@ -22,10 +22,10 @@ export const useValidation = (value: string, validations: any) => {
                     value ? setEmpty(false) : setEmpty(true)
                     break
                 case 'isEmptyPhone':
-                    value.length === 18 ? setIsEmptyPhoneErr(false) : setIsEmptyPhoneErr(true)
+                    value.length !== 18 ? setIsEmptyPhoneErr(true) : setIsEmptyPhoneErr(false)
                     break
                 case 'isEmptyForDate':
-                    value.length === 10 ? setIsEmptyForDateErr(false) : setIsEmptyForDateErr(true)
+                    value.length !== 10 ? setIsEmptyForDateErr(true) : setIsEmptyForDateErr(false)
                     break
                 case 'minLengthForName':
                     if (value) {
@@ -76,27 +76,18 @@ export const useValidation = (value: string, validations: any) => {
     }, [value])
 
     useEffect(() => {
-        console.log(isEmpty,
-            isEmptyPhoneErr,
-            isEmptyForDateErr,
-            minLengthForNameErr,
-            maxLengthForNameErr,
-            minLengthErr,
-            maxLengthErr,
-            emailErr,
-           )
-        if (isEmpty
-            || isEmptyPhoneErr
-            || isEmptyForDateErr
-            || minLengthForNameErr
-            || maxLengthForNameErr
-            || minLengthErr
-            || maxLengthErr
-            || emailErr
+        if (!isEmpty
+            && !isEmptyPhoneErr
+            && !isEmptyForDateErr
+            && !minLengthForNameErr
+            && !maxLengthForNameErr
+            && !minLengthErr
+            && !maxLengthErr
+            && !emailErr
            ) {
-            setInputValid(false)
-        } else {
             setInputValid(true)
+        } else {
+            setInputValid(false)
         }
     }, [isEmpty, maxLengthErr, minLengthErr, emailErr, minLengthForNameErr, maxLengthForNameErr, isEmptyPhoneErr, isEmptyForDateErr])
 
