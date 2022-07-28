@@ -1,109 +1,39 @@
-import React, {useEffect, useState} from 'react';
+import React from 'react';
 import style from './Form.module.scss'
+import {useInput} from "./hooks/useInput";
 
-
-const useValidation = (value: any, validations: any) => {
-    const [isEmpty, setEmpty] = useState(true)
-    const [minLengthErr, setMinLengthErr] = useState(false)
-    const [maxLengthErr, setMaxLengthErr] = useState(false)
-    const [emailErr, setEmailErr] = useState(false)
-    const [kirErr, setKirErr] = useState(false)
-    const [inputValid, setInputValid] = useState(false)
-
-    useEffect(() => {
-        for (const valid in validations) {
-            switch (valid) {
-                case 'minLength':
-                    value.length < validations[valid] ? setMinLengthErr(true) : setMinLengthErr(false)
-                    break
-                case 'isEmpty':
-                    value ? setEmpty(false) : setEmpty(true)
-                    break
-                case 'maxLength':
-                    value.length > validations[valid] ? setMaxLengthErr(true) : setMaxLengthErr(false)
-                    break
-                case 'isEmail':
-                    const re = /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
-                    re.test(String(value).toLowerCase()) ? setEmailErr(false) : setEmailErr(true)
-                    break
-                case 'isKir':
-                    const kir = /[а-я]/i;
-                    kir.test(String(value).toLowerCase()) ? setKirErr(true) : setKirErr(false)
-                    break
-            }
-        }
-    }, [value])
-
-    useEffect(() => {
-        if (isEmpty || maxLengthErr || minLengthErr || emailErr || kirErr) {
-            setInputValid(false)
-        } else {
-            setInputValid(true)
-        }
-    }, [isEmpty, maxLengthErr, minLengthErr, emailErr])
-
-    return {
-        isEmpty,
-        minLengthErr,
-        maxLengthErr,
-        emailErr,
-        kirErr,
-        inputValid
-    }
-}
-
-const useInput = (initialValue: any, validations: any) => {
-    const [value, setValue] = useState(initialValue)
-    const [isDirty, setDirty] = useState(false)
-    const valid = useValidation(value, validations)
-
-
-    const onChange = (e: any) => {
-        if (validations.isUpperCase) {
-            setValue(e.target.value.toUpperCase())
-        } else {
-            setValue(e.target.value)
-        }
-    }
-
-    const onBlur = (e: any) => {
-        setDirty(true)
-    }
-
-    const onKeyPress = (e: any) => {
-        console.log(e.charCode)
-        if (value.includes(' ') && e.charCode === 32) {
-            e.preventDefault()
-        }
-
-        /*if (e.charCode >= 48 && e.charCode <=55) {
-            e.preventDefault()
-        }*/
-    }
-
-    return {
-        value,
-        onChange,
-        onBlur,
-        isDirty,
-        onKeyPress,
-        ...valid
-    }
-}
 
 export const Form = () => {
 
     const name = useInput('', {
         isUpperCase: true,
         isEmpty: true,
-        minLength: 3,
-        maxLength: 30,
+        minLengthForName: 3,
+        maxLengthForName: 30,
         isKir: true,
     })
+
     const email = useInput('', {
         isUpperCase: false,
         isEmpty: true,
         isEmail: true,
+    })
+
+    const phone = useInput('', {
+        isUpperCase: false,
+        isEmptyPhone: true,
+    })
+
+    const formDate = useInput('', {
+        isUpperCase: false,
+        isEmptyForDate: true,
+    })
+
+    const message = useInput('', {
+        isUpperCase: false,
+        isEmpty: true,
+        minLength: 10,
+        maxLength: 300,
     })
 
     return (
@@ -112,34 +42,53 @@ export const Form = () => {
                    name='name'
                    value={name.value}
                    onChange={e => name.onChange(e)}
-                   onBlur={e => name.onBlur(e)}
-                   onKeyPress={e => name.onKeyPress(e)}
+                   onBlur={name.onBlur}
+                   onKeyPress={e => name.onKeyPressForName(e)}
                    placeholder='Enter your name and surname here'/>
             {(name.isDirty && name.isEmpty) && <div style={{color: 'red'}}>Поле не может быть пустым</div>}
-            {(name.isDirty && name.minLengthErr) && <div style={{color: 'red'}}>Некорректная длина 3</div>}
-            {(name.isDirty && name.maxLengthErr) && <div style={{color: 'red'}}>Некорректная длина 8</div>}
-            {(name.isDirty && name.kirErr) && <div style={{color: 'red'}}>Только латиница</div>}
+            {(name.isDirty && name.minLengthForNameErr) && <div style={{color: 'red'}}>min 3</div>}
+            {(name.isDirty && name.maxLengthForNameErr) && <div style={{color: 'red'}}>max 30</div>}
+
             <input type="email"
                    name='email'
                    value={email.value}
                    onChange={e => email.onChange(e)}
-                   onBlur={e => email.onBlur(e)}
+                   onBlur={email.onBlur}
                    placeholder='Email'/>
             {(email.isDirty && email.emailErr) && <div style={{color: 'red'}}>Поле не валидно</div>}
             {(email.isDirty && email.isEmpty) && <div style={{color: 'red'}}>Поле не может быть пустым</div>}
-            {(email.isDirty && email.minLengthErr) && <div style={{color: 'red'}}>Некорректная длина</div>}
+
             <input type="tel"
-                   name='telNumber'
+                   name='phone'
+                   onInput={e => phone.onInputForPhone(e)}
+                   value={phone.value}
+                   onChange={e => phone.onChange(e)}
+                   onBlur={phone.onBlur}
+                   onFocus={phone.onFocusForPhone}
                    placeholder='Номер телефона'/>
+            {(phone.isDirty && phone.isEmptyPhoneErr) && <div style={{color: 'red'}}>Обязательно для заполнения</div>}
+
             <input type="date"
                    name='date'
+                   value={formDate.value}
+                   onChange={e => formDate.onChange(e)}
+                   onBlur={formDate.onBlur}
                    placeholder='Дата рождения'/>
+            {(formDate.isDirty && formDate.isEmptyForDateErr) && <div style={{color: 'red'}}>Поле не заполнено полностью</div>}
+
             <div>
                 <textarea
                     name='message'
-                    placeholder='Сообщение'/>
+                    value={message.value}
+                    onChange={e => message.onChange(e)}
+                    onBlur={message.onBlur}
+                    placeholder='Сообщение...'/>
             </div>
-            <button disabled={!email.inputValid || !name.inputValid}>Отправить</button>
+            {(message.isDirty && message.isEmpty) && <div style={{color: 'red'}}>Поле не может быть пустым</div>}
+            {(message.isDirty && message.minLengthErr) && <div style={{color: 'red'}}>min 10</div>}
+            {(message.isDirty && message.maxLengthErr) && <div style={{color: 'red'}}>max 300</div>}
+
+            <button disabled={!email.inputValid || !name.inputValid }>Отправить</button>
         </form>
     );
 }
