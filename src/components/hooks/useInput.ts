@@ -19,6 +19,11 @@ export const useInput = (initialValue: string, validations: any) => {
         setDirty(true)
     }
 
+    const onBlurForDate = (e: any) => {
+        e.target.type = "text"
+        setDirty(true)
+    }
+
     const onFocusForPhone = () => {
         if (value) {
             setValue(value)
@@ -78,6 +83,9 @@ export const useInput = (initialValue: string, validations: any) => {
         onKeyPressForName,
         onInputForPhone,
         onFocusForPhone,
+        onBlurForDate,
+        setValue,
+        setDirty,
         ...valid
     }
 }

@@ -1,7 +1,6 @@
-import React from 'react';
+import React, {useState} from 'react';
 import style from './Form.module.scss'
 import {useInput} from "./hooks/useInput";
-import {findByDisplayValue} from "@testing-library/react";
 
 
 export const Form = () => {
@@ -37,6 +36,51 @@ export const Form = () => {
         maxLength: 300,
     })
 
+    const [responseMessage, setResponseMessage] = useState<string>('')
+    const [requestStatus, setRequestStatus] = useState<boolean>(false)
+
+    const sendFormData = async () => {
+        setRequestStatus(true)
+        let formData = {
+            name: name.value,
+            email: email.value,
+            phone: phone.value,
+            formDate: formDate.value,
+            message: message.value,
+        };
+
+        try {
+
+            let response = await fetch('https://test-valid-form-back.herokuapp.com/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json;charset=utf-8'
+                },
+                body: JSON.stringify(formData)
+            });
+
+            let result = await response.json();
+
+            setResponseMessage(result.message)
+
+            name.setValue('')
+            email.setValue('')
+            phone.setValue('')
+            formDate.setValue('')
+            message.setValue('')
+            name.setDirty(false)
+            email.setDirty(false)
+            phone.setDirty(false)
+            formDate.setDirty(false)
+            message.setDirty(false)
+        } catch (err: any) {
+            setResponseMessage(err.message)
+        } finally {
+            setRequestStatus(false)
+        }
+
+    }
+
     return (
         <div className={style.form_container}>
             <form>
@@ -47,9 +91,9 @@ export const Form = () => {
                        onBlur={name.onBlur}
                        onKeyPress={e => name.onKeyPressForName(e)}
                        placeholder='Enter your name and surname here'/>
-                {(name.isDirty && name.isEmpty) && <div style={{color: 'red'}}>Поле не может быть пустым</div>}
-                {(name.isDirty && name.minLengthForNameErr) && <div style={{color: 'red'}}>min 3</div>}
-                {(name.isDirty && name.maxLengthForNameErr) && <div style={{color: 'red'}}>max 30</div>}
+                {(name.isDirty && name.isEmpty) && <div style={{color: 'red'}}>Required field</div>}
+                {(name.isDirty && name.minLengthForNameErr) && <div style={{color: 'red'}}>Field must be 2 words, the minimum length of each word is 3 characters</div>}
+                {(name.isDirty && name.maxLengthForNameErr) && <div style={{color: 'red'}}>Field must be 2 words, the maximum length of each word is 30 characters</div>}
 
                 <input type="email"
                        name='email'
@@ -57,8 +101,8 @@ export const Form = () => {
                        onChange={e => email.onChange(e)}
                        onBlur={email.onBlur}
                        placeholder='Email'/>
-                {(email.isDirty && email.emailErr) && <div style={{color: 'red'}}>Поле не валидно</div>}
-                {(email.isDirty && email.isEmpty) && <div style={{color: 'red'}}>Поле не может быть пустым</div>}
+                {(email.isDirty && email.isEmpty) && <div style={{color: 'red'}}>Required field</div>}
+                {(email.isDirty && email.emailErr) && <div style={{color: 'red'}}>The field is not valid for the email</div>}
 
                 <input type="tel"
                        name='phone'
@@ -67,18 +111,18 @@ export const Form = () => {
                        onChange={e => phone.onChange(e)}
                        onBlur={phone.onBlur}
                        onFocus={phone.onFocusForPhone}
-                       placeholder='Номер телефона'/>
-                {(phone.isDirty && phone.isEmptyPhoneErr) &&
-                <div style={{color: 'red'}}>Обязательно для заполнения</div>}
+                       placeholder='Phone number'/>
+                {(phone.isDirty && phone.isEmptyPhoneErr) && <div style={{color: 'red'}}>Required field</div>}
 
-                <input type="date"
+                <input type="text"
                        name='date'
                        value={formDate.value}
                        onChange={e => formDate.onChange(e)}
-                       onBlur={formDate.onBlur}
-                       placeholder='Дата рождения'/>
+                       onBlur={formDate.onBlurForDate}
+                       onFocus={(e) => (e.target.type = "date")}
+                       placeholder='Date of Birth'/>
                 {(formDate.isDirty && formDate.isEmptyForDateErr) &&
-                <div style={{color: 'red'}}>Поле не заполнено полностью</div>}
+                <div style={{color: 'red'}}>The field is filled incorrectly</div>}
 
                 <div>
                 <textarea
@@ -86,18 +130,24 @@ export const Form = () => {
                     value={message.value}
                     onChange={e => message.onChange(e)}
                     onBlur={message.onBlur}
-                    placeholder='Сообщение...'/>
+                    placeholder='Your message...'/>
                 </div>
-                {(message.isDirty && message.isEmpty) && <div style={{color: 'red'}}>Поле не может быть пустым</div>}
-                {(message.isDirty && message.minLengthErr) && <div style={{color: 'red'}}>min 10</div>}
-                {(message.isDirty && message.maxLengthErr) && <div style={{color: 'red'}}>max 300</div>}
+                {(message.isDirty && message.isEmpty) && <div style={{color: 'red'}}>Required field</div>}
+                {(message.isDirty && message.minLengthErr) && <div style={{color: 'red'}}>The minimum length of each word is 10 characters</div>}
+                {(message.isDirty && message.maxLengthErr) && <div style={{color: 'red'}}>The maximum length of each word is 300 characters</div>}
             </form>
-            <button disabled={!email.inputValid
-            || !name.inputValid
-            || !phone.inputValid
-            || !formDate.inputValid
-            || !message.inputValid}>Отправить
+            <button
+                onClick={sendFormData}
+                disabled={!email.inputValid
+                || !name.inputValid
+                || !phone.inputValid
+                || !formDate.inputValid
+                || !message.inputValid
+                || requestStatus
+                }>
+                SEND
             </button>
+            <div>{responseMessage}</div>
         </div>
     );
 }

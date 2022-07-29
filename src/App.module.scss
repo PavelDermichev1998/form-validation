@@ -3,7 +3,15 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #5ba45b;
+  background-color: #b7dbff;
   height: 100vh;
+  font-family: 'Saira Semi Condensed', sans-serif;
+  font-weight: 500;
+
+
+  & input, textarea, button {
+    font-family: 'Saira Semi Condensed', sans-serif;
+    font-size: 15px;
+  }
 }
 
