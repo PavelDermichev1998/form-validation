@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import style from './Form.module.scss'
 import {useInput} from "./hooks/useInput";
-import {GlobalLoadingComponent} from "../globalLoading/GlobalLoadingComponent";
+import {GlobalLoadingComponent} from "./globalLoading/GlobalLoadingComponent";
 
 export const Form = () => {
 

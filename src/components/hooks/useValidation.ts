@@ -89,7 +89,8 @@ export const useValidation = (value: string, validations: any) => {
         } else {
             setInputValid(false)
         }
-    }, [isEmpty, maxLengthErr, minLengthErr, emailErr, minLengthForNameErr, maxLengthForNameErr, isEmptyPhoneErr, isEmptyForDateErr])
+    }, [isEmpty, maxLengthErr, minLengthErr, emailErr, minLengthForNameErr, maxLengthForNameErr,
+        isEmptyPhoneErr, isEmptyForDateErr])
 
     return {
         isEmpty,
