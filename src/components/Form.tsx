@@ -86,7 +86,7 @@ export const Form = () => {
     return (
         <div className={style.form_container}>
             {requestStatus && <GlobalLoadingComponent/>}
-            <form>
+            <form onClick={() => setResponseMessage('')}>
                 <input type="text"
                        name='name'
                        value={name.value}
