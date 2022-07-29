@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import style from './Form.module.scss'
 import {useInput} from "./hooks/useInput";
-
+import {GlobalLoadingComponent} from "../globalLoading/GlobalLoadingComponent";
 
 export const Form = () => {
 
@@ -36,7 +36,9 @@ export const Form = () => {
         maxLength: 300,
     })
 
+
     const [responseMessage, setResponseMessage] = useState<string>('')
+
     const [requestStatus, setRequestStatus] = useState<boolean>(false)
 
     const sendFormData = async () => {
@@ -73,16 +75,17 @@ export const Form = () => {
             phone.setDirty(false)
             formDate.setDirty(false)
             message.setDirty(false)
+
         } catch (err: any) {
             setResponseMessage(err.message)
         } finally {
             setRequestStatus(false)
         }
-
     }
 
     return (
         <div className={style.form_container}>
+            {requestStatus && <GlobalLoadingComponent/>}
             <form>
                 <input type="text"
                        name='name'
@@ -92,8 +95,12 @@ export const Form = () => {
                        onKeyPress={e => name.onKeyPressForName(e)}
                        placeholder='Enter your name and surname here'/>
                 {(name.isDirty && name.isEmpty) && <div style={{color: 'red'}}>Required field</div>}
-                {(name.isDirty && name.minLengthForNameErr) && <div style={{color: 'red'}}>Field must be 2 words, the minimum length of each word is 3 characters</div>}
-                {(name.isDirty && name.maxLengthForNameErr) && <div style={{color: 'red'}}>Field must be 2 words, the maximum length of each word is 30 characters</div>}
+                {(name.isDirty && name.minLengthForNameErr) &&
+                <div style={{color: 'red'}}>Field must be 2 words, the minimum length of each word is 3
+                    characters</div>}
+                {(name.isDirty && name.maxLengthForNameErr) &&
+                <div style={{color: 'red'}}>Field must be 2 words, the maximum length of each word is 30
+                    characters</div>}
 
                 <input type="email"
                        name='email'
@@ -102,7 +109,8 @@ export const Form = () => {
                        onBlur={email.onBlur}
                        placeholder='Email'/>
                 {(email.isDirty && email.isEmpty) && <div style={{color: 'red'}}>Required field</div>}
-                {(email.isDirty && email.emailErr) && <div style={{color: 'red'}}>The field is not valid for the email</div>}
+                {(email.isDirty && email.emailErr) &&
+                <div style={{color: 'red'}}>The field is not valid for the email</div>}
 
                 <input type="tel"
                        name='phone'
@@ -133,9 +141,12 @@ export const Form = () => {
                     placeholder='Your message...'/>
                 </div>
                 {(message.isDirty && message.isEmpty) && <div style={{color: 'red'}}>Required field</div>}
-                {(message.isDirty && message.minLengthErr) && <div style={{color: 'red'}}>The minimum length of each word is 10 characters</div>}
-                {(message.isDirty && message.maxLengthErr) && <div style={{color: 'red'}}>The maximum length of each word is 300 characters</div>}
+                {(message.isDirty && message.minLengthErr) &&
+                <div style={{color: 'red'}}>The minimum length of each word is 10 characters</div>}
+                {(message.isDirty && message.maxLengthErr) &&
+                <div style={{color: 'red'}}>The maximum length of each word is 300 characters</div>}
             </form>
+
             <button
                 onClick={sendFormData}
                 disabled={!email.inputValid
@@ -147,7 +158,8 @@ export const Form = () => {
                 }>
                 SEND
             </button>
-            <div>{responseMessage}</div>
+
+            <div style={{color: 'blueviolet'}}>{responseMessage}</div>
         </div>
     );
 }
